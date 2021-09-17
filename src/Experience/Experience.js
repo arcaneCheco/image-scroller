@@ -1,145 +1,146 @@
-import * as THREE from 'three'
-import Time from './Utils/Time.js'
-import Sizes from './Utils/Sizes.js'
-import Stats from './Utils/Stats.js'
+import * as THREE from "three";
+import { Pane } from "tweakpane";
+import Time from "./Utils/Time.js";
+import Sizes from "./Utils/Sizes.js";
+import Stats from "./Utils/Stats.js";
 
-import Resources from './Resources.js'
-import Renderer from './Renderer.js'
-import Camera from './Camera.js'
-import World from './World.js'
+import Resources from "./Resources.js";
+import Renderer from "./Renderer.js";
+import Camera from "./Camera.js";
+import World from "./World.js";
 
-import assets from './assets.js'
+import assets from "./assets.js";
 
-export default class Experience
-{
-    static instance
+export default class Experience {
+  static instance;
 
-    constructor(_options = {})
-    {
-        if(Experience.instance)
-        {
-            return Experience.instance
-        }
-        Experience.instance = this
+  constructor(_options = {}) {
+    if (Experience.instance) {
+      return Experience.instance;
+    }
+    Experience.instance = this;
 
-        // Options
-        this.targetElement = _options.targetElement
+    // Options
+    this.targetElement = _options.targetElement;
 
-        if(!this.targetElement)
-        {
-            console.warn('Missing \'targetElement\' property')
-            return
-        }
-
-        this.time = new Time()
-        this.sizes = new Sizes()
-        this.setConfig()
-        this.setStats()
-        this.setScene()
-        this.setCamera()
-        this.setRenderer()
-        this.setResources()
-        this.setWorld()
-        
-        this.sizes.on('resize', () =>
-        {
-            this.resize()
-        })
-
-        this.update()
+    if (!this.targetElement) {
+      console.warn("Missing 'targetElement' property");
+      return;
     }
 
-    setConfig()
-    {
-        this.config = {}
-    
-        // Debug
-        this.config.debug = window.location.hash === '#debug'
+    this.time = new Time();
+    this.sizes = new Sizes();
+    this.setConfig();
+    this.setStats();
+    this.setDebug();
+    this.setScene();
+    this.setGradientScene();
+    this.setCamera();
+    this.setGradientCamera();
+    this.setRenderer();
+    this.setResources();
+    this.setWorld();
 
-        // Pixel ratio
-        this.config.pixelRatio = Math.min(Math.max(window.devicePixelRatio, 1), 2)
+    this.sizes.on("resize", () => {
+      this.resize();
+    });
 
-        // Width and height
-        const boundings = this.targetElement.getBoundingClientRect()
-        this.config.width = boundings.width
-        this.config.height = boundings.height || window.innerHeight
+    this.update();
+  }
+
+  setConfig() {
+    this.config = {};
+
+    // Debug
+    this.config.debug = window.location.hash === "#debug";
+
+    // Pixel ratio
+    this.config.pixelRatio = Math.min(Math.max(window.devicePixelRatio, 1), 2);
+
+    // Width and height
+    const boundings = this.targetElement.getBoundingClientRect();
+    this.config.width = boundings.width;
+    this.config.height = boundings.height || window.innerHeight;
+  }
+
+  setStats() {
+    if (this.config.debug) {
+      this.stats = new Stats(true);
     }
+  }
 
-    setStats()
-    {
-        if(this.config.debug)
-        {
-            this.stats = new Stats(true)
-        }
+  setDebug() {
+    if (this.config.debug) {
+      this.debug = new Pane();
+      this.debug.containerElem_.style.width = "320px";
     }
-    
-    setScene()
-    {
-        this.scene = new THREE.Scene()
-    }
+  }
 
-    setCamera()
-    {
-        this.camera = new Camera()
-    }
+  setScene() {
+    this.scene = new THREE.Scene();
+  }
 
-    setRenderer()
-    {
-        this.renderer = new Renderer({ rendererInstance: this.rendererInstance })
+  setGradientScene() {
+    this.gradientScene = new THREE.Scene();
+  }
 
-        this.targetElement.appendChild(this.renderer.instance.domElement)
-    }
+  setCamera() {
+    this.camera = new Camera();
+  }
 
-    setResources()
-    {
-        this.resources = new Resources(assets)
-    }
+  setGradientCamera() {
+    this.gradientCamera = new THREE.OrthographicCamera(
+      -1, // left
+      1, // right
+      1, // top
+      -1, // bottom
+      -1, // near,
+      0 // far
+    );
+  }
 
-    setWorld()
-    {
-        this.world = new World()
-    }
+  setRenderer() {
+    this.renderer = new Renderer({ rendererInstance: this.rendererInstance });
 
-    update()
-    {
-        if(this.stats)
-            this.stats.update()
-        
-        this.camera.update()
+    this.targetElement.appendChild(this.renderer.instance.domElement);
+  }
 
-        if(this.world)
-            this.world.update()
-        
-        if(this.renderer)
-            this.renderer.update()
+  setResources() {
+    this.resources = new Resources(assets);
+  }
 
-        window.requestAnimationFrame(() =>
-        {
-            this.update()
-        })
-    }
+  setWorld() {
+    this.world = new World();
+  }
 
-    resize()
-    {
-        // Config
-        const boundings = this.targetElement.getBoundingClientRect()
-        this.config.width = boundings.width
-        this.config.height = boundings.height
+  update() {
+    if (this.stats) this.stats.update();
 
-        this.config.pixelRatio = Math.min(Math.max(window.devicePixelRatio, 1), 2)
+    this.camera.update();
 
-        if(this.camera)
-            this.camera.resize()
+    if (this.world) this.world.update();
 
-        if(this.renderer)
-            this.renderer.resize()
+    if (this.renderer) this.renderer.update();
 
-        if(this.world)
-            this.world.resize()
-    }
+    window.requestAnimationFrame(() => {
+      this.update();
+    });
+  }
 
-    destroy()
-    {
-        
-    }
+  resize() {
+    // Config
+    const boundings = this.targetElement.getBoundingClientRect();
+    this.config.width = boundings.width;
+    this.config.height = boundings.height;
+
+    this.config.pixelRatio = Math.min(Math.max(window.devicePixelRatio, 1), 2);
+
+    if (this.camera) this.camera.resize();
+
+    if (this.renderer) this.renderer.resize();
+
+    if (this.world) this.world.resize();
+  }
+
+  destroy() {}
 }
