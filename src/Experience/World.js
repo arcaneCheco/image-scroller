@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import Experience from "./Experience.js";
 import Gradient from "./Gradient.js";
+import CircularScroller from "./CircularScroller.js";
 
 export default class World {
   constructor(_options) {
@@ -12,7 +13,8 @@ export default class World {
     this.resources.on("groupEnd", (_group) => {
       if (_group.name === "base") {
         this.setGradient();
-        this.setDummy();
+        this.setCircularScroller();
+        // this.setDummy();
       }
     });
   }
@@ -28,8 +30,13 @@ export default class World {
     );
     this.scene.add(cube);
   }
+
   setGradient() {
     this.gradient = new Gradient();
+  }
+
+  setCircularScroller() {
+    this.circularScroller = new CircularScroller();
   }
 
   resize() {}
@@ -37,6 +44,9 @@ export default class World {
   update() {
     if (this.gradient) {
       this.gradient.update();
+    }
+    if (this.circularScroller) {
+      this.circularScroller.update();
     }
   }
 

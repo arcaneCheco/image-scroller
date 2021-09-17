@@ -73,6 +73,7 @@ export default class Gradient {
         uStartColor: { value: this.colors.start.instance },
         uEndColor: { value: this.colors.end.instance },
       },
+      depthWrite: false,
     });
 
     if (this.debug) {
